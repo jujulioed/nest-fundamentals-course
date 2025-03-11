@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdatePutUserDTO } from "./dto/update-put-user.dto";
@@ -10,7 +10,6 @@ export class UserService {
     constructor(private readonly prisma: PrismaService) {}
 
     async create({email, name, password}: CreateUserDTO) {
-
         return await this.prisma.user.create({
             data: {
                 email,
@@ -22,13 +21,11 @@ export class UserService {
     }
 
     async list() {
-
         return this.prisma.user.findMany();
 
     }
 
     async show(id: number) {
-
         return this.prisma.user.findUnique({
             where: {
                 id: id
@@ -38,6 +35,9 @@ export class UserService {
     }
 
     async update(id: number, data: UpdatePutUserDTO) {
+
+        await this.idExists(id);
+
         if(data.birthAt) {
             data.birthAt = new Date(data.birthAt);
         }
@@ -51,6 +51,9 @@ export class UserService {
     }
 
     async updatePartial(id: number, data: UpdatePatchUserDTO) {
+
+        await this.idExists(id);
+
         if(data.birthAt) {
             data.birthAt = new Date(data.birthAt);
         }
@@ -61,6 +64,23 @@ export class UserService {
                 id
             }
         });
+    }
+
+    async delete(id: number) {
+
+        await this.idExists(id);
+
+        return await this.prisma.user.delete({
+            where: {
+                id
+            }
+        })
+    }
+
+    async idExists(id: number) {
+        if(!(await this.show(id))) {
+            throw new NotFoundException(`The user of this id ${id} doesn't exist`)
+        }
     }
 
 }
