@@ -3,7 +3,7 @@ CREATE DATABASE api;
 USE api;
 
 CREATE TABLE `api`.`users` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT UNSIGNED,
   `name` VARCHAR(63) NOT NULL,
   `email` VARCHAR(127) NOT NULL,
   `password` VARCHAR(127) NOT NULL,
